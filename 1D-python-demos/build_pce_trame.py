@@ -67,18 +67,9 @@ def figure_size():
 
 def MeanStd():
     
-    ensemble = 50
-    
     fig, ax = plt.subplots(**figure_size())
-    
-    pce.assert_pce_built()
-    
-    if ensemble:
-        ax.plot(x, output[:ensemble, :].T, 'k', alpha=0.8, linewidth=0.2)
-    ax.plot(x, mean, 'b', label='Mean')
-    ax.fill_between(x, mean-stdev, mean+stdev, interpolate=True, facecolor='red', alpha=0.5, label='$\pm 1$ stdev range')
 
-    #fig = mean_stdev_plot(pce, ensemble=50,**figure_size())
+    ax = mean_stdev_plot(pce, ensemble=50,ax =ax)
     
     return fig
 
@@ -88,43 +79,10 @@ def MeanStd():
 
 def Quantiles():
 
-    bands = 3
+    fig, ax = plt.subplots(**figure_size() )
     
-    xvals = x
-    
-    xlabel = '$x$'
+    ax= quantile_plot(pce,ax=ax, xvals = x, xlabel='$x$')
 
-    pce.assert_pce_built()
-    
-    dq = 0.5/(bands+1)
-    q_lower = np.arange(dq, 0.5-1e-7, dq)[::-1]
-    q_upper = np.arange(0.5 + dq, 1.0-1e-7, dq)
-    quantile_levels = np.append(np.concatenate((q_lower, q_upper)), 0.5)
-
-    quantiles = pce.quantile(quantile_levels, M=int(2e3))
-    median = quantiles[-1, :]
-
-    band_mass = 1/(2*(bands+1))
-    
-    if ax is None:
-        ax = plt.figure().gca()
-
-    ax.plot(x, median, 'b', label='Median')
-
-    for ind in range(bands):
-        alpha = (bands-ind) * 1/bands - (1/(2*bands))
-        if ind == 0:
-            ax.fill_between(x, quantiles[ind, :], quantiles[bands+ind, :],
-                             interpolate=True, facecolor='red', alpha=alpha,
-                             label='{0:1.2f} probability mass (each band)'.format(band_mass))
-        else:
-            ax.fill_between(x, quantiles[ind, :], quantiles[bands+ind, :], interpolate=True, facecolor='red', alpha=alpha)
-
-    ax.set_title('Median + quantile bands')
-    ax.set_xlabel('$x$')
-    ax.legend(loc='lower right')
-    
-#    fig = quantile_plot(pce, bands=3, xvals=x, xlabel='$x$',**figure_size())
 
     return fig
 
@@ -133,30 +91,14 @@ def Quantiles():
 
 
 def SensitivityPiechart():
-    
-    fig = piechart_sensitivity(pce,**figure_size())
-
-    return fig
-
-
-# -----------------------------------------------------------------------------
-
-
-def MovingWindowAverage():
-    np.random.seed(0)
-    t = np.linspace(0, 10, 300)
-    x = np.sin(t)
-    dx = np.random.normal(0, 0.3, 300)
-
-    kernel = np.ones(25) / 25.0
-    x_smooth = np.convolve(x + dx, kernel, mode="same")
 
     fig, ax = plt.subplots(**figure_size())
-    ax.plot(t, x + dx, linestyle="", marker="o", color="black", markersize=3, alpha=0.3)
-    ax.plot(t, x_smooth, "-k", lw=3)
-    ax.plot(t, x, "--k", lw=3, color="blue")
+    
+    ax = piechart_sensitivity(pce, ax = ax)
 
     return fig
+
+
 
 
 # -----------------------------------------------------------------------------
@@ -193,7 +135,7 @@ def update_chart(active_figure, **kwargs):
 # -----------------------------------------------------------------------------
 
 layout = SinglePage("Matplotly")
-layout.title.set_text("trame ❤️ matplotlib")
+layout.title.set_text("UncertainSCI demo")
 
 with layout.toolbar:
     vuetify.VSpacer()
@@ -205,8 +147,6 @@ with layout.toolbar:
                 {"text": "Mean and Standard Deviation", "value": "MeanStd"},
                 {"text": "Quantile Plot", "value": "Quantiles"},
                 {"text": "Sensitivity Piechart", "value": "SensitivityPiechart"},
-                {"text": "Moving Window Average", "value": "MovingWindowAverage"},
-                {"text": "Subplots", "value": "Subplots"},
             ],
         ),
         hide_details=True,
