@@ -85,8 +85,6 @@ def Quantiles():
     fig, ax = plt.subplots(**figure_size() )
     
     ax= quantile_plot(pce,ax=ax, xvals = x, xlabel='$x$')
-    
-    mpld3.plugins.connect(fig, HighlightLines(lines))
 
 
     return fig
