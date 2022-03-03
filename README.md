@@ -20,8 +20,9 @@ pip install -r requirements.txt
 
 With the environment properly setup, run the web app as follows:
 
+
 ```bash
-python ./1D-python-demos/build_pce_trame.py --port 1234
+python ./1D-trame-matplotlib/build_pce_trame.py --port 1234
 ```
 
 A browser window should open to `http://localhost:1234/`
