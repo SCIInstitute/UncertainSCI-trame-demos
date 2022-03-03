@@ -48,92 +48,32 @@ mean = pce.mean()
 stdev = pce.stdev()
 
 global_sensitivity, variable_interactions = pce.global_sensitivity()
-quantiles = pce.quantile([0.25, 0.5, 0.75]) #  0.25, median, 0.75 quantile
-
-
-def figure_size():
-    if state.figure_size is None:
-        return {}
-
-    pixel_ratio = state.figure_size.get("pixelRatio")
-    dpi = state.figure_size.get("dpi")
-    rect = state.figure_size.get("size")
-    w_inch = rect.get("width") / dpi / pixel_ratio
-    h_inch = rect.get("height") / dpi / pixel_ratio
-
-    return {
-        "figsize": (w_inch, h_inch),
-        "dpi": dpi,
-    }
+#quantiles = pce.quantile([0.25, 0.5, 0.75]) #  0.25, median, 0.75 quantile
+#median = quantiles[-1, :]
     
 
 def MeanStd():
 
-    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     x_rev = x[::-1]
-
-    # Line 1
-    y1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    y1_upper = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    y1_lower = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    y1_lower = y1_lower[::-1]
-
-    # Line 2
-    y2 = [5, 2.5, 5, 7.5, 5, 2.5, 7.5, 4.5, 5.5, 5]
-    y2_upper = [5.5, 3, 5.5, 8, 6, 3, 8, 5, 6, 5.5]
-    y2_lower = [4.5, 2, 4.4, 7, 4, 2, 7, 4, 5, 4.75]
-    y2_lower = y2_lower[::-1]
-
-    # Line 3
-    y3 = [10, 8, 6, 4, 2, 0, 2, 4, 2, 0]
-    y3_upper = [11, 9, 7, 5, 3, 1, 3, 5, 3, 1]
-    y3_lower = [9, 7, 5, 3, 1, -.5, 1, 3, 1, -1]
-    y3_lower = y3_lower[::-1]
-
+    upper = mean+stdev
+    lower = mean-stdev
+    lower=lower[::- 1]
 
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(
-        x=x+x_rev,
-        y=y1_upper+y1_lower,
+        x=np.hstack((x,x_rev)),
+        y=np.hstack((upper,lower)),
         fill='toself',
         fillcolor='rgba(0,100,80,0.2)',
         line_color='rgba(255,255,255,0)',
-        showlegend=False,
-        name='Fair',
+        showlegend=True,
+        name='Stdev',
     ))
     fig.add_trace(go.Scatter(
-        x=x+x_rev,
-        y=y2_upper+y2_lower,
-        fill='toself',
-        fillcolor='rgba(0,176,246,0.2)',
-        line_color='rgba(255,255,255,0)',
-        name='Premium',
-        showlegend=False,
-    ))
-    fig.add_trace(go.Scatter(
-        x=x+x_rev,
-        y=y3_upper+y3_lower,
-        fill='toself',
-        fillcolor='rgba(231,107,243,0.2)',
-        line_color='rgba(255,255,255,0)',
-        showlegend=False,
-        name='Ideal',
-    ))
-    fig.add_trace(go.Scatter(
-        x=x, y=y1,
+        x=x, y=mean,
         line_color='rgb(0,100,80)',
-        name='Fair',
-    ))
-    fig.add_trace(go.Scatter(
-        x=x, y=y2,
-        line_color='rgb(0,176,246)',
-        name='Premium',
-    ))
-    fig.add_trace(go.Scatter(
-        x=x, y=y3,
-        line_color='rgb(231,107,243)',
-        name='Ideal',
+        name='mean',
     ))
 
     fig.update_traces(mode='lines')
@@ -145,10 +85,53 @@ def MeanStd():
 
 
 def Quantiles():
-
-    fig, ax = plt.subplots(**figure_size() )
     
-    ax= quantile_plot(pce,ax=ax, xvals = x, xlabel='$x$')
+    bands = 3
+    band_mass = 1/(2*(bands+1))
+    x_rev = x[::-1]
+    
+    dq = 0.5/(bands+1)
+    q_lower = np.arange(dq, 0.5-1e-7, dq)[::-1]
+    q_upper = np.arange(0.5 + dq, 1.0-1e-7, dq)
+    quantile_levels = np.append(np.concatenate((q_lower, q_upper)), 0.5)
+
+    quantiles = pce.quantile(quantile_levels, M=int(2e3))
+    median = quantiles[-1, :]
+    
+    fig = go.Figure()
+        
+    for ind in range(bands):
+        alpha = (bands-ind) * 1/bands - (1/(2*bands))
+        upper = quantiles[ind, :]
+        lower = quantiles[bands+ind, ::-1]
+        if ind == 0:
+            fig.add_trace(go.Scatter(
+                x=np.hstack((x,x_rev)),
+                y=np.hstack((upper,lower)),
+                fill='toself',
+                fillcolor='rgba(100,0,0,'+str(alpha)+')',
+                line_color='rgba(100,0,0,'+str(alpha)+')',
+                showlegend=True,
+                name='{0:1.2f} probability mass (each band)'.format(band_mass),
+            ))
+        else:
+            fig.add_trace(go.Scatter(
+                x=np.hstack((x,x_rev)),
+                y=np.hstack((upper,lower)),
+                fill='toself',
+                fillcolor='rgba(100,0,0,'+str(alpha)+')',
+                line_color='rgba(100,0,0,'+str(alpha)+')',
+                showlegend=False,
+            ))
+
+    
+    fig.add_trace(go.Scatter(
+        x=x, y=mean,
+        line_color='rgb(0,0,0)',
+        name='median',
+    ))
+
+    fig.update_traces(mode='lines')
 
 
     return fig
