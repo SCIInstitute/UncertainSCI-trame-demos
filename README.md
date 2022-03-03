@@ -29,7 +29,7 @@ With the environment properly setup, start the web application as follows:
 | Name | Command | URL | Description |
 |--|--|--|--|
 | `1D-trame-matplotlib` | `python ./1D-trame-matplotlib/build_pce_trame.py --port 1234` | http://localhost:1234/ | [trame][], [matplotlib][] |
-
+| `1D-trame-plotly` | `python ./1D-trame-matplotlib/app.py --port 1235` | http://localhost:1234/  | [trame][], [plotly][] |
 
 A browser window associated with the relevant URL should open automatically.
 
