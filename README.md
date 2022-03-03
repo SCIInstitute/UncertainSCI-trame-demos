@@ -19,7 +19,7 @@ pip install -r requiremtents.txt
 
 With the environment properly setup, run the web app as follows:
 ```
-python ./1D-python-demos/build_pce_trame.py --port 1234
+python ./1D-python-demos/app.py --port 1234
 ```
 A browser window should open to `http://localhost:1234/`
 
