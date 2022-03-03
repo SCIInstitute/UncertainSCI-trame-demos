@@ -9,8 +9,8 @@ This repo houses web app demos for [UncertainSCI](https://github.com/SCIInstitut
 
 To run the web app, the UncertainSCI and trames need to be installed.  It is also best to run trame with Python 3.9 and in a virtual environment.   This can be done by executing the following commands from this repo directory in a terminal window:
 ```
-python3.9 -m venv .venv
 source ./.venv/bin/activate
+python3 -m venv .venv
 python -m pip install --upgrade pip
 pip install -r requiremtents.txt
 ```
