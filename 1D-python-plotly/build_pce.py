@@ -110,7 +110,7 @@ def Quantiles():
                 y=np.hstack((upper,lower)),
                 fill='toself',
                 fillcolor='rgba(100,0,0,'+str(alpha)+')',
-                line_color='rgba(100,0,0,'+str(alpha)+')',
+                line_color='rgba(100,0,0,0)',
                 showlegend=True,
                 name='{0:1.2f} probability mass (each band)'.format(band_mass),
             ))
@@ -120,7 +120,7 @@ def Quantiles():
                 y=np.hstack((upper,lower)),
                 fill='toself',
                 fillcolor='rgba(100,0,0,'+str(alpha)+')',
-                line_color='rgba(100,0,0,'+str(alpha)+')',
+                line_color='rgba(100,0,0,0)',
                 showlegend=False,
             ))
 
@@ -142,9 +142,24 @@ def Quantiles():
 
 def SensitivityPiechart():
 
-    fig, ax = plt.subplots(**figure_size())
-    
-    ax = piechart_sensitivity(pce, ax = ax)
+    global_sensitivity, variable_interactions = pce.global_sensitivity()
+    scalarized_GSI = np.mean(global_sensitivity, axis=1)
+    print(type(scalarized_GSI))
+    labels = [' '.join([pce.plabels[v] for v in varlist]) for varlist in variable_interactions]
+    print(type(labels[0]))
+    print(variable_interactions)
+    print(labels)
+    print(scalarized_GSI)
+
+    fig = go.Figure(
+        data=[go.Pie(labels=labels, values=scalarized_GSI.tolist())]
+        )
+
+#    labels = ['Oxygen','Hydrogen','Carbon_Dioxide','Nitrogen']
+#    values = [4500, 2500, 1053, 500]
+#
+#    fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+
 
     return fig
 
