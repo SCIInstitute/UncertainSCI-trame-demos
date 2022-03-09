@@ -1,1 +1,1 @@
-web: gunicorn 1D-trame-plotly.app
+web: gunicorn BuildPCEDemo.wsgi

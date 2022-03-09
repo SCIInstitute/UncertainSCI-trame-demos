@@ -1,5 +1,0 @@
-wheel
-UncertainSCI>=0.2.0-b0
-trame>=1.15.1
-plotly
-pandas

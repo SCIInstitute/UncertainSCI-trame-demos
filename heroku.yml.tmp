@@ -1,8 +1,0 @@
-build:
-  cofig:
-    DEMO_DIR: 1D-trame-plotly
-  web:
-    pip install -r ${DEMO_DIR}/requirements.txt
-run:
-  web: python ./1D-trame-plotly/app.py --port 1235  --server
-
