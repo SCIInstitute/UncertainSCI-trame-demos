@@ -1,8 +1,7 @@
 django
 gunicorn
 django-heroku
-wheel
-UncertainSCI>=0.2.0-b0
+UncertainSCI>=0.2.1-b0
 trame>=1.15.1
 plotly
 pandas
